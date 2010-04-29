@@ -11,17 +11,11 @@ Currently this module supports the following cache methods.
 1. APC
 2. eAccelerator
 3. Memcache
-4. Memcached-tags (Supports tags)
-5. SQLite (Supports tags)
-6. File
-7. Xcache
-
-Planned support
----------------
-
-In the near future, additional support for the following methods will be included.
-
-1. Memcached
+4. Memcached
+5. Memcached-tags (Supports tags)
+6. SQLite (Supports tags)
+7. File
+8. Xcache
 
 Introduction to caching
 -----------------------
@@ -41,20 +35,20 @@ Quick example
 The following is a quick example of how to use Kohana Cache. The example is using the SQLite driver.
 
 	<?php
-	// Get a Sqlite Cache instance  
+	// Get a Sqlite Cache instance
 	$mycache = Cache::instance('sqlite');
-	
+
 	// Create some data
 	$data = array('foo' => 'bar', 'apples' => 'pear', 'BDFL' => 'Shadowhand');
-	
+
 	// Save the data to cache, with an id of test_id and a lifetime of 10 minutes
 	$mycache->set('test_id', $data, 600);
-	
+
 	// Retrieve the data from cache
 	$retrieved_data = $mycache->get('test_id');
-	
+
 	// Remove the cache item
 	$mycache->delete('test_id');
-	
+
 	// Clear the cache of all stored items
 	$mycache->delete_all();
