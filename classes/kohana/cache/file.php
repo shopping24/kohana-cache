@@ -86,7 +86,7 @@ class Kohana_Cache_File extends Cache {
 	 */
 	public function get($id, $default = NULL)
 	{
-		$filename = Cache_File::filename($this->sanitize_id($id));
+		$filename = Cache_File::filename($this->_sanitize_id($id));
 		$directory = $this->_resolve_directory($filename);
 
 		// Wrap operations in try/catch to handle notices
@@ -146,7 +146,7 @@ class Kohana_Cache_File extends Cache {
 	 */
 	public function set($id, $data, $lifetime = NULL)
 	{
-		$filename = Cache_File::filename($this->sanitize_id($id));
+		$filename = Cache_File::filename($this->_sanitize_id($id));
 		$directory = $this->_resolve_directory($filename);
 
 		// Open directory
@@ -208,7 +208,7 @@ class Kohana_Cache_File extends Cache {
 	 */
 	public function delete($id)
 	{
-		$filename = Cache_File::filename($this->sanitize_id($id));
+		$filename = Cache_File::filename($this->_sanitize_id($id));
 		$directory = $this->_resolve_directory($filename);
 
 		return $this->_delete_file(new SplFileInfo($directory.$filename), NULL, TRUE);
