@@ -176,7 +176,7 @@ class Kohana_Cache_Memcached extends Cache {
 	 */
 	public function get($id, $default = NULL)
 	{
-		$value = $this->_memcached->get($this->sanitize_id($id));
+		$value = $this->_memcached->get($this->_sanitize_id($id));
 
 		if ($value === FALSE)
 		{
@@ -207,7 +207,7 @@ class Kohana_Cache_Memcached extends Cache {
 		}
 
 		// Send data to memcache
-		return $this->_memcached->set($this->sanitize_id($id), $data, $lifetime);
+		return $this->_memcached->set($this->_sanitize_id($id), $data, $lifetime);
 	}
 
 	/**
@@ -219,7 +219,7 @@ class Kohana_Cache_Memcached extends Cache {
 	 */
 	public function delete($id, $timeout = 0)
 	{
-		return $this->_memcached->delete($this->sanitize_id($id), $timeout);
+		return $this->_memcached->delete($this->_sanitize_id($id), $timeout);
 	}
 
 	/**
