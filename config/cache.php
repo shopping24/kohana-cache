@@ -84,6 +84,10 @@ return array
 	(
 		'driver'             => 'eaccelerator',
 	),
+	'eaccelerator'           => array
+	(
+		'driver'             => 'eaccelerator',
+	),
 	'xcache'   => array
 	(
 		'driver'             => 'xcache',

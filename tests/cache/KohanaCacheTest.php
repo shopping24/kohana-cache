@@ -81,11 +81,11 @@ class KohanaCacheTest extends PHPUnit_Framework_TestCase {
 
 	public function testDelete()
 	{
-		
+
 	}
 
 	public function testDeleteAll()
 	{
-		
+
 	}
 }
