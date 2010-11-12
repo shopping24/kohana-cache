@@ -13,13 +13,9 @@ return array
 				'host'             => 'localhost',  // Memcache Server
 				'port'             => 11211,        // Memcache port number
 				'persistent'       => FALSE,        // Persistent connection
-				'weight'           => 1,
-				'timeout'          => 1,
-				'retry_interval'   => 15,
-				'status'           => TRUE,
 			),
 		),
-		'instant_death'      => TRUE,               // Take server offline immediately on first fail (no retry)
+		'default_expire'     => 3600,
 	),
 	'memcached' => array
 	(
@@ -79,10 +75,6 @@ return array
 		'default_expire'     => 3600,
 		'database'           => APPPATH.'cache/kohana-cache.sql3',
 		'schema'             => 'CREATE TABLE caches(id VARCHAR(127) PRIMARY KEY, tags VARCHAR(255), expiration INTEGER, cache TEXT)',
-	),
-	'eaccelerator'           => array
-	(
-		'driver'             => 'eaccelerator',
 	),
 	'eaccelerator'           => array
 	(

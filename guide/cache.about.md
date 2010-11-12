@@ -1,7 +1,7 @@
 # About Kohana Cache
 
 [Kohana_Cache] provides a common interface to a variety of caching engines. [Kohana_Cache_Tagging] is
-supported where available natively to the cache system. Kohana Cache supports multiple 
+supported where available natively to the cache system. Kohana Cache supports multiple
 instances of cache engines through a grouped singleton pattern.
 
 ## Supported cache engines
@@ -23,6 +23,7 @@ a complex set of instructions.
 Caching engines that use memory are considerably faster than file based alternatives. But
 memory is limited whereas disk space is plentiful. If caching large datasets, such as large database result sets, it is best to use file caching.
 
+<<<<<<< HEAD
 <<<<<<< HEAD
  [!!] Cache drivers require the relevant PHP extensions to be installed. APC, eAccelerator, Memecached and Xcache all require non-standard PHP extensions.
 
@@ -54,8 +55,6 @@ Xcache           | __Memory__   | Excellent | Yes      | No          | Yes | Ver
 
 It is possible to have hybrid cache solutions that use a combination of the engines above in different contexts. This is supported with _Kohana Cache_ as well.
 
-=======
->>>>>>> Added more documentation and the beginning of PHPUnit tests
 ## Minimum requirements
 
  *  Kohana 3.0.4
