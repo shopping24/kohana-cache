@@ -125,12 +125,11 @@ class Kohana_Cache_Memcached extends Cache {
 			{
 				throw new Kohana_Cache_Exception('Could not connect to memcache host at \':host\' using port \':port\'', array(':host' => $server['host'], ':port' => $server['port']));
 			}
-		}
-		
-		// set sasl authorization
-		if ($servers['sasl_username'] && $servers['sasl_password'])
-		{
-			$this->_memcached->configureSasl($server['sasl_username'], $server['password']);
+			// set sasl authorization
+			if (array_key_exists('sasl_username',$server) && array_key_exists('sasl_password',$server))
+			{
+				$this->_memcached->configureSasl($server['sasl_username'], $server['sasl_password']);
+			}
 		}
 		
 		// Load memcached options from configuration
