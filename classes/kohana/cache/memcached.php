@@ -240,6 +240,8 @@ class Kohana_Cache_Memcached extends Cache {
 	
 	/**
 	 * retrieves return code for the last operation
+	 *
+	 * @return int
 	 */
 	public function get_result_code()
 	{
