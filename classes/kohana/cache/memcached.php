@@ -237,4 +237,12 @@ class Kohana_Cache_Memcached extends Cache {
 	{
 		return $this->_memcached->flush();
 	}
+	
+	/**
+	 * retrieves return code for the last operation
+	 */
+	public function get_result_code()
+	{
+		return $this->_memcached->getResultCode();
+	}	
 }
