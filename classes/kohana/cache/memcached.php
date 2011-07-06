@@ -128,6 +128,7 @@ class Kohana_Cache_Memcached extends Cache {
 			// set sasl authorization
 			if (array_key_exists('sasl_username',$server) && array_key_exists('sasl_password',$server))
 			{
+				var_dump('memcached auth');
 				$this->_memcached->configureSasl($server['sasl_username'], $server['sasl_password']);
 			}
 		}
