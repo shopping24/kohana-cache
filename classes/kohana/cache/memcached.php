@@ -188,6 +188,9 @@ class Kohana_Cache_Memcached extends Cache {
 		{
 			$value = (NULL === $default) ? NULL : $default;
 		}
+		
+		// debug
+		Request::initial()->_memcache_count_get += 1;
 
 		return $value;
 	}
@@ -210,7 +213,10 @@ class Kohana_Cache_Memcached extends Cache {
 		else
 		{
 			$lifetime += time();
-		}
+		}	
+		
+		// debug
+		Request::initial()->_memcache_count_set += 1;
 
 		// Send data to memcache
 		return $this->_memcached->set($this->_sanitize_id($id), $data, $lifetime);
