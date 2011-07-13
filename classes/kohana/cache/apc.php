@@ -70,7 +70,12 @@ class Kohana_Cache_Apc extends Cache {
 	 * @throws  Kohana_Cache_Exception
 	 */
 	public function get($id, $default = NULL)
-	{
+	{	
+		// debug
+		if(isset(Request::initial()->_cache_count_get)) {
+			Request::initial()->_cache_count_get += 1;
+		}
+		
 		return (($data = apc_fetch($this->_sanitize_id($id))) === FALSE) ? $default : $data;
 	}
 
@@ -95,6 +100,11 @@ class Kohana_Cache_Apc extends Cache {
 		if ($lifetime === NULL)
 		{
 			$lifetime = Arr::get($this->_config, 'default_expire', Cache::DEFAULT_EXPIRE);
+		}
+
+		// debug
+		if(isset(Request::initial()->_cache_count_set)) {
+			Request::initial()->_cache_count_set += 1;
 		}
 
 		return apc_store($this->_sanitize_id($id), $data, $lifetime);

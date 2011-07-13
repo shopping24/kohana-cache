@@ -190,7 +190,9 @@ class Kohana_Cache_Memcached extends Cache {
 		}
 		
 		// debug
-		Request::initial()->_memcache_count_get += 1;
+		if(isset(Request::initial()->_cache_count_get)) {
+			Request::initial()->_cache_count_get += 1;
+		}
 
 		return $value;
 	}
@@ -216,7 +218,9 @@ class Kohana_Cache_Memcached extends Cache {
 		}	
 		
 		// debug
-		Request::initial()->_memcache_count_set += 1;
+		if(isset(Request::initial()->_cache_count_set)) {
+			Request::initial()->_cache_count_set += 1;
+		}
 
 		// Send data to memcache
 		return $this->_memcached->set($this->_sanitize_id($id), $data, $lifetime);
