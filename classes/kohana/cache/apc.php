@@ -72,8 +72,8 @@ class Kohana_Cache_Apc extends Cache {
 	public function get($id, $default = NULL)
 	{	
 		// debug
-		if(isset(Request::initial()->_cache_count_get)) {
-			Request::initial()->_cache_count_get += 1;
+		if(isset(Request::initial()->cache_count_get)) {
+			Request::initial()->cache_count_get += 1;
 		}
 		
 		return (($data = apc_fetch($this->_sanitize_id($id))) === FALSE) ? $default : $data;
@@ -103,8 +103,8 @@ class Kohana_Cache_Apc extends Cache {
 		}
 
 		// debug
-		if(isset(Request::initial()->_cache_count_set)) {
-			Request::initial()->_cache_count_set += 1;
+		if(isset(Request::initial()->cache_count_set)) {
+			Request::initial()->cache_count_set += 1;
 		}
 
 		return apc_store($this->_sanitize_id($id), $data, $lifetime);

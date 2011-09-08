@@ -190,8 +190,8 @@ class Kohana_Cache_Memcached extends Cache {
 		}
 		
 		// debug
-		if(isset(Request::initial()->_cache_count_get)) {
-			Request::initial()->_cache_count_get += 1;
+		if(isset(Request::initial()->cache_count_get)) {
+			Request::initial()->cache_count_get += 1;
 		}
 
 		return $value;
@@ -218,8 +218,8 @@ class Kohana_Cache_Memcached extends Cache {
 		}	
 		
 		// debug
-		if(isset(Request::initial()->_cache_count_set)) {
-			Request::initial()->_cache_count_set += 1;
+		if(isset(Request::initial()->cache_count_set)) {
+			Request::initial()->cache_count_set += 1;
 		}
 
 		// Send data to memcache
