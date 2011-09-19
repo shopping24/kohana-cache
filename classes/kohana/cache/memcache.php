@@ -98,6 +98,9 @@ class Kohana_Cache_Memcache extends Cache {
 	 */
 	protected $_flags;
 
+	private static $local_cache;
+	private $_config_hash;
+	
 	/**
 	 * Constructs the memcache Kohana_Cache object
 	 *
@@ -149,9 +152,22 @@ class Kohana_Cache_Memcache extends Cache {
 				throw new Kohana_Cache_Exception('Memcache could not connect to host \':host\' using port \':port\'', array(':host' => $server['host'], ':port' => $server['port']));
 			}
 		}
-
+		$this->_config_hash = md5(serialize($config));
 		// Setup the flags
 		$this->_flags = Arr::get($this->_config, 'compression', FALSE) ? MEMCACHE_COMPRESSED : FALSE;
+	}
+	
+	public function __destruct()
+	{
+		if(is_array(self::$local_cache[$this->_config_hash]))
+		{
+			foreach (self::$local_cache[$this->_config_hash] as $id => $value){
+				if (isset($value['lifetime'])){
+					$this->_memcache->set($this->_sanitize_id($id), $value['data'], $this->_flags, $value['lifetime']);
+				}
+			}
+			self::$local_cache[$this->_config_hash] = null;
+		}
 	}
 
 	/**
@@ -170,17 +186,25 @@ class Kohana_Cache_Memcache extends Cache {
 	 */
 	public function get($id, $default = NULL)
 	{
-		// Get the value from Memcache
-		$value = $this->_memcache->get($this->_sanitize_id($id));
-
-		// If the value wasn't found, normalise it
-		if ($value === FALSE)
+		$id = $this->_sanitize_id($id);
+		if (isset(self::$local_cache[$this->_config_hash][$id]))
 		{
-			$value = (NULL === $default) ? NULL : $default;
+			if(self::$local_cache[$this->_config_hash][$id]['data'] === FALSE)
+			return $default;
+				
+			return self::$local_cache[$this->_config_hash][$id]['data'];
 		}
-
-		// Return the value
-		return $value;
+		
+		// debug
+		if(isset(Request::initial()->cache_count_get)) {
+			Request::initial()->cache_count_get += 1;
+		}
+		
+		$res = $this->_memcache->get($id);
+		self::$local_cache[$this->_config_hash][$id] = array('data' => $res);
+		
+		
+		return $res === FALSE ? $default : $res;
 	}
 
 	/**
@@ -202,6 +226,7 @@ class Kohana_Cache_Memcache extends Cache {
 	 */
 	public function set($id, $data, $lifetime = 3600)
 	{
+				
 		// If the lifetime is greater than the ceiling
 		if ($lifetime > Cache_Memcache::CACHE_CEILING)
 		{
@@ -220,8 +245,21 @@ class Kohana_Cache_Memcache extends Cache {
 			$lifetime = 0;
 		}
 
-		// Set the data to memcache
-		return $this->_memcache->set($this->_sanitize_id($id), $data, $this->_flags, $lifetime);
+		
+		$id = $this->_sanitize_id($id);
+		
+		// debug
+		if(isset(Request::initial()->cache_count_set)) {
+			Request::initial()->cache_count_set += 1;
+		}
+		
+		
+		if(!isset(self::$local_cache[$this->_config_hash][$id]) ||
+		(isset(self::$local_cache[$this->_config_hash][$id]) && serialize($data) !== serialize(self::$local_cache[$this->_config_hash][$id]['data']))
+		)
+		{
+			self::$local_cache[$this->_config_hash][$id] = array('data' => $data, 'lifetime' => $lifetime);
+		}
 	}
 
 	/**

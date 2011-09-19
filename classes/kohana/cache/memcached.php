@@ -81,6 +81,9 @@ class Kohana_Cache_Memcached extends Cache {
 		'consistent' => Memcached::DISTRIBUTION_CONSISTENT,
 	);
 
+	private static $local_cache;
+	private $_config_hash;
+	
 	/**
 	 * Constructs the memcached object
 	 *
@@ -171,8 +174,23 @@ class Kohana_Cache_Memcached extends Cache {
 				$this->_memcached->setOption($this->_options_map[$key], $value);
 			}
 		}
+		
+		$this->_config_hash = md5(serialize($config));
 	}
 
+	public function __destruct()
+	{
+		if(is_array(self::$local_cache[$this->_config_hash]))
+		{
+			foreach (self::$local_cache[$this->_config_hash] as $id => $value){
+				if (isset($value['lifetime'])){
+					$this->_memcached->set($id, $value['data'], $value['lifetime']);
+				}
+			}
+			self::$local_cache[$this->_config_hash] = null;
+		}
+	}
+	
 	/**
 	 * Retrieve a value based on an id
 	 *
@@ -181,20 +199,26 @@ class Kohana_Cache_Memcached extends Cache {
 	 * @return  mixed
 	 */
 	public function get($id, $default = NULL)
-	{
-		$value = $this->_memcached->get($this->_sanitize_id($id));
-
-		if ($value === FALSE)
+	{		
+		$id = $this->_sanitize_id($id);
+		if (isset(self::$local_cache[$this->_config_hash][$id]))
 		{
-			$value = (NULL === $default) ? NULL : $default;
+			if(self::$local_cache[$this->_config_hash][$id]['data'] === FALSE)
+			return $default;
+				
+			return self::$local_cache[$this->_config_hash][$id]['data'];
 		}
 		
 		// debug
 		if(isset(Request::initial()->cache_count_get)) {
 			Request::initial()->cache_count_get += 1;
 		}
-
-		return $value;
+		
+		$res = $this->_memcached->get($this->_sanitize_id($id));
+		self::$local_cache[$this->_config_hash][$id] = array('data' => $res);
+		
+		
+		return $res === FALSE ? $default : $res;
 	}
 
 	/**
@@ -217,13 +241,20 @@ class Kohana_Cache_Memcached extends Cache {
 			$lifetime += time();
 		}	
 		
+		$id = $this->_sanitize_id($id);
+		
 		// debug
 		if(isset(Request::initial()->cache_count_set)) {
 			Request::initial()->cache_count_set += 1;
 		}
-
-		// Send data to memcache
-		return $this->_memcached->set($this->_sanitize_id($id), $data, $lifetime);
+		
+		
+		if(!isset(self::$local_cache[$this->_config_hash][$id]) ||
+		(isset(self::$local_cache[$this->_config_hash][$id]) && serialize($data) !== serialize(self::$local_cache[$this->_config_hash][$id]['data']))
+		)
+		{
+			self::$local_cache[$this->_config_hash][$id] = array('data' => $data, 'lifetime' => $lifetime);
+		}
 	}
 
 	/**

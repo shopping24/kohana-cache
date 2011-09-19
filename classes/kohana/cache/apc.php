@@ -40,6 +40,7 @@ class Kohana_Cache_Apc extends Cache {
 
 	
 	private static $local_cache;
+	private $_config_hash;
 	
 	/**
 	 * Check for existence of the APC extension This method cannot be invoked externally. The driver must
@@ -54,19 +55,20 @@ class Kohana_Cache_Apc extends Cache {
 		{
 			throw new Kohana_Cache_Exception('PHP APC extension is not available.');
 		}
-
+		$this->_config_hash = md5(serialize($config));
 		parent::__construct($config);
 	}
 	
 	public function __destruct()
 	{
-		if(is_array($this->local_cache))
+		if(is_array(self::$local_cache[$this->_config_hash]))
 		{
-			foreach ($this->local_cache as $id => $value){
+			foreach (self::$local_cache[$this->_config_hash] as $id => $value){
 				if (isset($value['lifetime'])){
-					apc_store($this->_sanitize_id($id), $value['data'], $value['lifetime']);
+					apc_store($id, $value['data'], $value['lifetime']);
 				}
 			}
+			self::$local_cache[$this->_config_hash] = null;
 		}
 	}
 
@@ -86,9 +88,13 @@ class Kohana_Cache_Apc extends Cache {
 	 */
 	public function get($id, $default = NULL)
 	{		
-		if (isset($this->local_cache[$id]))
+		$id = $this->_sanitize_id($id);
+		if (isset(self::$local_cache[$this->_config_hash][$id]))
 		{
-			return $this->local_cache[$id]['data'];
+			if(self::$local_cache[$this->_config_hash][$id]['data'] === FALSE)
+				return $default;
+			
+			return self::$local_cache[$this->_config_hash][$id]['data'];
 		}
 		
 		// debug
@@ -96,14 +102,11 @@ class Kohana_Cache_Apc extends Cache {
 			Request::initial()->cache_count_get += 1;
 		}
 		
-		$res = (($data = apc_fetch($this->_sanitize_id($id))) === FALSE) ? $default : $data;
+		$res = apc_fetch($id);
+		self::$local_cache[$this->_config_hash][$id] = array('data' => $res);
 		
-		if ($res != $default)
-		{
-			$this->local_cache[$id] = array('data' => $res);
-		}
 		
-		return $res;
+		return $res === FALSE ? $default : $res;
 	}
 
 	/**
@@ -124,6 +127,8 @@ class Kohana_Cache_Apc extends Cache {
 	 */
 	public function set($id, $data, $lifetime = NULL)
 	{
+		
+		$id = $this->_sanitize_id($id);
 		if ($lifetime === NULL)
 		{
 			$lifetime = Arr::get($this->_config, 'default_expire', Cache::DEFAULT_EXPIRE);
@@ -133,9 +138,15 @@ class Kohana_Cache_Apc extends Cache {
 		if(isset(Request::initial()->cache_count_set)) {
 			Request::initial()->cache_count_set += 1;
 		}
+		
 
-		$this->local_cache[$id] = array('data' => $data, 'lifetime' => $lifetime);
-		//return apc_store($this->_sanitize_id($id), $data, $lifetime);
+		if(!isset(self::$local_cache[$this->_config_hash][$id]) || 
+			(isset(self::$local_cache[$this->_config_hash][$id]) && serialize($data) !== serialize(self::$local_cache[$this->_config_hash][$id]['data']))
+		 )
+		{
+			self::$local_cache[$this->_config_hash][$id] = array('data' => $data, 'lifetime' => $lifetime);
+		}
+
 	}
 
 	/**
