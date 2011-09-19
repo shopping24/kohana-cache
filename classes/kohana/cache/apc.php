@@ -38,6 +38,9 @@
  */
 class Kohana_Cache_Apc extends Cache {
 
+	
+	private static $local_cache;
+	
 	/**
 	 * Check for existence of the APC extension This method cannot be invoked externally. The driver must
 	 * be instantiated using the `Cache::instance()` method.
@@ -53,6 +56,18 @@ class Kohana_Cache_Apc extends Cache {
 		}
 
 		parent::__construct($config);
+	}
+	
+	public function __destruct()
+	{
+		if(is_array($this->local_cache))
+		{
+			foreach ($this->local_cache as $id => $value){
+				if (isset($value['lifetime'])){
+					apc_store($this->_sanitize_id($id), $value['data'], $value['lifetime']);
+				}
+			}
+		}
 	}
 
 	/**
@@ -70,13 +85,25 @@ class Kohana_Cache_Apc extends Cache {
 	 * @throws  Kohana_Cache_Exception
 	 */
 	public function get($id, $default = NULL)
-	{	
+	{		
+		if (isset($this->local_cache[$id]))
+		{
+			return $this->local_cache[$id]['data'];
+		}
+		
 		// debug
 		if(isset(Request::initial()->cache_count_get)) {
 			Request::initial()->cache_count_get += 1;
 		}
 		
-		return (($data = apc_fetch($this->_sanitize_id($id))) === FALSE) ? $default : $data;
+		$res = (($data = apc_fetch($this->_sanitize_id($id))) === FALSE) ? $default : $data;
+		
+		if ($res != $default)
+		{
+			$this->local_cache[$id] = array('data' => $res);
+		}
+		
+		return $res;
 	}
 
 	/**
@@ -107,7 +134,8 @@ class Kohana_Cache_Apc extends Cache {
 			Request::initial()->cache_count_set += 1;
 		}
 
-		return apc_store($this->_sanitize_id($id), $data, $lifetime);
+		$this->local_cache[$id] = array('data' => $data, 'lifetime' => $lifetime);
+		//return apc_store($this->_sanitize_id($id), $data, $lifetime);
 	}
 
 	/**
