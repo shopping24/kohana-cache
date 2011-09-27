@@ -316,6 +316,10 @@ class Kohana_Cache_Memcache extends Cache {
 	 */
 	public function failed_request($hostname, $port)
 	{
+		Kohana::$log->add(Log::ERROR, 'Memcache request failed on host ' . $hostname . ' (port ' . $port . ')');
+		Kohana::$log->add(Log::ERROR, 'Memcache request failed on url ' . Request::initial()->uri());
+		Kohana::$log->write();
+		
 		if ( ! $this->_config['instant_death'])
 			return; 
 
