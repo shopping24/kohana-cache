@@ -86,27 +86,59 @@ class Kohana_Cache_Apc extends Cache {
 	 * @return  mixed
 	 * @throws  Kohana_Cache_Exception
 	 */
-	public function get($id, $default = NULL)
+	public function get($id, $default = NULL, $group = NULL)
 	{		
 		$id = $this->_sanitize_id($id);
+		
+		if ($group != NULL)
+		{
+			if (isset(self::$local_cache[$this->_config_hash][$group]))
+			{
+				if(self::$local_cache[$this->_config_hash][$group]['data'] === FALSE)
+				{
+					return $default;
+				}
+					
+				$res = self::$local_cache[$this->_config_hash][$group]['data'];
+			}
+			else
+			{
+				$res = apc_fetch($group);
+				self::$local_cache[$this->_config_hash][$group] = array('data' => $res);
+				
+				// debug
+				if(isset(Request::initial()->cache_count_get)) {
+					Request::initial()->cache_count_get += 1;
+				}
+			}
+ 			
+ 			
+			if ($res !== FALSE AND isset($res[$id]))
+			{
+				return $res[$id];
+			}
+
+			return $default;
+		}
+
 		if (isset(self::$local_cache[$this->_config_hash][$id]))
 		{
 			if(self::$local_cache[$this->_config_hash][$id]['data'] === FALSE)
-				return $default;
-			
+			return $default;
+				
 			return self::$local_cache[$this->_config_hash][$id]['data'];
 		}
-		
+		$res = apc_fetch($id);
 		// debug
 		if(isset(Request::initial()->cache_count_get)) {
 			Request::initial()->cache_count_get += 1;
 		}
-		
-		$res = apc_fetch($id);
 		self::$local_cache[$this->_config_hash][$id] = array('data' => $res);
-		
-		
+
 		return $res === FALSE ? $default : $res;
+
+		
+		
 	}
 
 	/**
@@ -125,7 +157,7 @@ class Kohana_Cache_Apc extends Cache {
 	 * @param   integer  lifetime in seconds
 	 * @return  boolean
 	 */
-	public function set($id, $data, $lifetime = NULL)
+	public function set($id, $data, $lifetime = NULL, $group = NULL)
 	{
 		
 		$id = $this->_sanitize_id($id);
@@ -139,13 +171,33 @@ class Kohana_Cache_Apc extends Cache {
 			Request::initial()->cache_count_set += 1;
 		}
 		
-
-		if(!isset(self::$local_cache[$this->_config_hash][$id]) || 
-			(isset(self::$local_cache[$this->_config_hash][$id]) && serialize($data) !== serialize(self::$local_cache[$this->_config_hash][$id]['data']))
-		 )
+		$cache = &self::$local_cache[$this->_config_hash];
+		
+		if ($group != NULL)
 		{
-			self::$local_cache[$this->_config_hash][$id] = array('data' => $data, 'lifetime' => $lifetime);
+			if (!isset($cache[$group]))
+			{
+				$cache[$group] = array('data' => array(), 'lifetime' => $lifetime);
+			}
+			
+			if (!isset($cache[$group]['lifetime']) OR $cache[$group]['lifetime'] < $lifetime)
+			{
+				$cache[$group]['lifetime'] = $lifetime;
+				
+			}			
+			$cache = &$cache[$group]['data'];
+			if(!isset($cache[$id]) OR (serialize($data) !== serialize($cache[$id])))
+			{
+				$cache[$id] = $data;
+			}
 		}
+		else {
+			if(!isset($cache[$id]) OR (serialize($data) !== serialize($cache[$id]['data'])))
+			{
+				$cache[$id] = array('data' => $data, 'lifetime' => $lifetime);
+			}
+		}
+
 
 	}
 

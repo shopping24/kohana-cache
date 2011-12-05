@@ -180,7 +180,7 @@ abstract class Kohana_Cache {
 	 * @return  mixed
 	 * @throws  Kohana_Cache_Exception
 	 */
-	abstract public function get($id, $default = NULL);
+	abstract public function get($id, $default = NULL, $group = NULL);
 
 	/**
 	 * Set a value to cache with id and lifetime
@@ -205,7 +205,7 @@ abstract class Kohana_Cache {
 	 * @param   integer  lifetime in seconds
 	 * @return  boolean
 	 */
-	abstract public function set($id, $data, $lifetime = 3600);
+	abstract public function set($id, $data, $lifetime = 3600, $group = NULL);
 
 	/**
 	 * Delete a cache entry based on id
