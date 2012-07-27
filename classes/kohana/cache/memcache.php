@@ -159,7 +159,7 @@ class Kohana_Cache_Memcache extends Cache {
 	
 	public function __destruct()
 	{
-		if(is_array(self::$local_cache[$this->_config_hash]))
+		if(Request::is_valid() AND is_array(self::$local_cache[$this->_config_hash]))
 		{
 			foreach (self::$local_cache[$this->_config_hash] as $id => $value){
 				if (isset($value['lifetime'])){
