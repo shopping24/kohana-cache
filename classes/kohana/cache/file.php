@@ -126,7 +126,7 @@ class Kohana_Cache_File extends Cache implements Kohana_Cache_GarbageCollect {
 	 * @return  mixed
 	 * @throws  Kohana_Cache_Exception
 	 */
-	public function get($id, $default = NULL)
+	public function get($id, $default = NULL, $group = NULL)
 	{
 		$filename = Cache_File::filename($this->_sanitize_id($id));
 		$directory = $this->_resolve_directory($filename);
@@ -196,7 +196,7 @@ class Kohana_Cache_File extends Cache implements Kohana_Cache_GarbageCollect {
 	 * @param   integer  lifetime in seconds
 	 * @return  boolean
 	 */
-	public function set($id, $data, $lifetime = NULL)
+	public function set($id, $data, $lifetime = NULL, $group = NULL)
 	{
 		$filename = Cache_File::filename($this->_sanitize_id($id));
 		$directory = $this->_resolve_directory($filename);
