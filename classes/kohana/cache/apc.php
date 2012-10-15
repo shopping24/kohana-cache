@@ -107,9 +107,7 @@ class Kohana_Cache_Apc extends Cache {
 				self::$local_cache[$this->_config_hash][$group] = array('data' => $res);
 				
 				// debug
-				if(isset(Request::initial()->cache_count_get)) {
-					Request::initial()->cache_count_get += 1;
-				}
+                DebugInfo::$cache_count_get += 1;
 			}
  			
  			
@@ -129,10 +127,10 @@ class Kohana_Cache_Apc extends Cache {
 			return self::$local_cache[$this->_config_hash][$id]['data'];
 		}
 		$res = apc_fetch($id);
+
 		// debug
-		if(isset(Request::initial()->cache_count_get)) {
-			Request::initial()->cache_count_get += 1;
-		}
+        DebugInfo::$cache_count_get += 1;
+
 		self::$local_cache[$this->_config_hash][$id] = array('data' => $res);
 
 		return $res === FALSE ? $default : $res;
@@ -167,9 +165,7 @@ class Kohana_Cache_Apc extends Cache {
 		}
 
 		// debug
-		if(isset(Request::initial()->cache_count_set)) {
-			Request::initial()->cache_count_set += 1;
-		}
+		DebugInfo::$cache_count_set += 1;
 		
 		$cache = &self::$local_cache[$this->_config_hash];
 		
