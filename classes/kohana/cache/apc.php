@@ -165,7 +165,7 @@ class Kohana_Cache_Apc extends Cache {
 		}
 
 		// debug
-		DebugInfo::$cache_count_set += 1;
+		//DebugInfo::$cache_count_set += 1;
 		
 		$cache = &self::$local_cache[$this->_config_hash];
 		
