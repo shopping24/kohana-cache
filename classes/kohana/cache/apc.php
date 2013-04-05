@@ -107,7 +107,7 @@ class Kohana_Cache_Apc extends Cache {
 				self::$local_cache[$this->_config_hash][$group] = array('data' => $res);
 				
 				// debug
-                DebugInfo::$cache_count_get += 1;
+                //DebugInfo::$cache_count_get += 1;
 			}
  			
  			
@@ -129,7 +129,7 @@ class Kohana_Cache_Apc extends Cache {
 		$res = apc_fetch($id);
 
 		// debug
-        DebugInfo::$cache_count_get += 1;
+        //DebugInfo::$cache_count_get += 1;
 
 		self::$local_cache[$this->_config_hash][$id] = array('data' => $res);
 
