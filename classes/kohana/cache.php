@@ -81,7 +81,7 @@ abstract class Kohana_Cache {
 	/**
 	 * @var   string     default driver to use
 	 */
-	public static $default = 'file';
+	public static $default = 'default';
 
 	/**
 	 * @var   Kohana_Cache instances
