@@ -1,3 +1,5 @@
+# :warning: Please do not yet delete this, because it may be, that this is a skin submodule! 
+
 Kohana Cache library
 ====================
 
